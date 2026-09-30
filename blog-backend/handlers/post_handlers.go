@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/russross/blackfriday/v2"
 
-	"github.com/gg582/chi-blog/blog-backend/models" // Import models package
-	"github.com/gg582/chi-blog/blog-backend/utils"    // Import utils package
+	"github.com/gg582/echo-blog/blog-backend/models" // Import models package
+	"github.com/gg582/echo-blog/blog-backend/utils"    // Import utils package
 )
 
 // GetPostsHandler handles fetching all blog posts.

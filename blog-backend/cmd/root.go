@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/gg582/chi-blog/blog-backend/config"
-	"github.com/gg582/chi-blog/blog-backend/server"
+	"github.com/gg582/echo-blog/blog-backend/config"
+	"github.com/gg582/echo-blog/blog-backend/server"
 	"github.com/spf13/cobra"
 )
 

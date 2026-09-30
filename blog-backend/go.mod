@@ -1,4 +1,4 @@
-module github.com/gg582/chi-blog/blog-backend
+module github.com/gg582/echo-blog/blog-backend
 
 go 1.24.5
 

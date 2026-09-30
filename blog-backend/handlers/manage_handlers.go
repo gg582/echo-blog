@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/gg582/chi-blog/blog-backend/models"
+	"github.com/gg582/echo-blog/blog-backend/models"
 )
 
 // GetRawPostHandler returns the raw markdown of a single post as plain text.

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gg582/chi-blog/blog-backend/utils"
+	"github.com/gg582/echo-blog/blog-backend/utils"
 )
 
 // RequireAuth wraps a handler so it only runs when the request carries a

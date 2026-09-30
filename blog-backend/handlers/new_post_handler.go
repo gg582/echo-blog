@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5" // Import chi for URLParam
 
-	"github.com/gg582/chi-blog/blog-backend/models"
+	"github.com/gg582/echo-blog/blog-backend/models"
 )
 
 // CreateNewPostHandler handles the submission of a new blog post.

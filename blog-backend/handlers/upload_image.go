@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gg582/chi-blog/blog-backend/workerpool"
+	"github.com/gg582/echo-blog/blog-backend/workerpool"
 )
 
 // FileJobQueue is the channel used to submit file upload jobs to the worker pool.

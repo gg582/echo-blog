@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gg582/chi-blog/blog-backend/config"
-	"github.com/gg582/chi-blog/blog-backend/database"
-	"github.com/gg582/chi-blog/blog-backend/utils"
+	"github.com/gg582/echo-blog/blog-backend/config"
+	"github.com/gg582/echo-blog/blog-backend/database"
+	"github.com/gg582/echo-blog/blog-backend/utils"
 	"github.com/spf13/cobra"
 )
 

@@ -1,0 +1,833 @@
+[
+  {
+    "name": "login bad body",
+    "method": "POST",
+    "target": "/api/login",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid request body\n"
+  },
+  {
+    "name": "login unknown user",
+    "method": "POST",
+    "target": "/api/login",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid credentials\n"
+  },
+  {
+    "name": "login wrong password",
+    "method": "POST",
+    "target": "/api/login",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid credentials\n"
+  },
+  {
+    "name": "login ok",
+    "method": "POST",
+    "target": "/api/login",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\":\"Login succeed\",\"token\":\"\u003ctoken\u003e\"}\n"
+  },
+  {
+    "name": "list posts",
+    "method": "POST",
+    "target": "/api/posts",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"id\":\"hello-world\",\"title\":\"Hello World\",\"contentHtml\":\"\\u003ch1\\u003eHello World\\u003c/h1\\u003e\\n\\n\\u003cp\\u003eSome \\u003cb\\u003etext\\u003c/b\\u003e \\u0026amp; more.\\u003c/p\\u003e\\n\",\"author\":\"tester\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"hello-world.md\"},{\"id\":\"plain\",\"title\":\"First line without heading\",\"contentHtml\":\"\\u003cp\\u003eFirst line without heading\\u003c/p\\u003e\\n\\n\\u003cp\\u003ebody\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"plain.md\"},{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}]\n"
+  },
+  {
+    "name": "list posts GET",
+    "method": "GET",
+    "target": "/api/posts",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "post by id",
+    "method": "POST",
+    "target": "/api/posts/hello-world",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"hello-world\",\"title\":\"Hello World\",\"contentHtml\":\"\\u003ch1\\u003eHello World\\u003c/h1\\u003e\\n\\n\\u003cp\\u003eSome \\u003cb\\u003etext\\u003c/b\\u003e \\u0026amp; more.\\u003c/p\\u003e\\n\",\"author\":\"tester\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"hello-world.md\"}\n"
+  },
+  {
+    "name": "post by korean id",
+    "method": "POST",
+    "target": "/api/posts/%EB%A6%AC%EB%88%85%EC%8A%A4-%EB%8D%B0%EC%8A%A4%ED%81%AC%ED%86%B1-%EC%82%AC%EC%9A%A9-%EC%8B%9C-im%EC%9D%98-%EB%AC%B8%EC%A0%9C",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}\n"
+  },
+  {
+    "name": "post by percent-encoded korean id",
+    "method": "POST",
+    "target": "/api/posts/%EB%A6%AC%EB%88%85%EC%8A%A4-%EB%8D%B0%EC%8A%A4%ED%81%AC%ED%86%B1-%EC%82%AC%EC%9A%A9-%EC%8B%9C-im%EC%9D%98-%EB%AC%B8%EC%A0%9C",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}\n"
+  },
+  {
+    "name": "post without heading",
+    "method": "POST",
+    "target": "/api/posts/plain",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"plain\",\"title\":\"First line without heading\",\"contentHtml\":\"\\u003cp\\u003eFirst line without heading\\u003c/p\\u003e\\n\\n\\u003cp\\u003ebody\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"plain.md\"}\n"
+  },
+  {
+    "name": "post missing",
+    "method": "POST",
+    "target": "/api/posts/missing",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Post not found.\n"
+  },
+  {
+    "name": "post encoded slash",
+    "method": "POST",
+    "target": "/api/posts/..%2Fplain",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Post not found.\n"
+  },
+  {
+    "name": "raw encoded slash",
+    "method": "GET",
+    "target": "/api/posts/..%2F..%2Fabout%2Fabout/raw",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Post not found.\n"
+  },
+  {
+    "name": "raw post",
+    "method": "GET",
+    "target": "/api/posts/hello-world/raw",
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8"
+    },
+    "body": "---\nauthor: tester\n---\n\n# Hello World\n\nSome \u003cb\u003etext\u003c/b\u003e \u0026 more.\n"
+  },
+  {
+    "name": "raw korean post",
+    "method": "GET",
+    "target": "/api/posts/%EB%A6%AC%EB%88%85%EC%8A%A4-%EB%8D%B0%EC%8A%A4%ED%81%AC%ED%86%B1-%EC%82%AC%EC%9A%A9-%EC%8B%9C-im%EC%9D%98-%EB%AC%B8%EC%A0%9C/raw",
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8"
+    },
+    "body": "# 리눅스 데스크톱\n\n본문입니다.\n"
+  },
+  {
+    "name": "raw missing",
+    "method": "GET",
+    "target": "/api/posts/missing/raw",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Post not found.\n"
+  },
+  {
+    "name": "about",
+    "method": "GET",
+    "target": "/api/about",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"about\",\"title\":\"About Me\",\"contentHtml\":\"\\u003ch1\\u003eAbout Me\\u003c/h1\\u003e\\n\\n\\u003cp\\u003ehello\\u003c/p\\u003e\\n\",\"author\":\"me\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"about.md\"}\n"
+  },
+  {
+    "name": "contact",
+    "method": "GET",
+    "target": "/api/contact",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"contact\",\"title\":\"mail: me@example.com\",\"contentHtml\":\"\\u003cp\\u003email: me@example.com\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"contact.md\"}\n"
+  },
+  {
+    "name": "files no auth",
+    "method": "GET",
+    "target": "/api/files",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "files bad token",
+    "method": "GET",
+    "target": "/api/files",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "files raw token",
+    "method": "GET",
+    "target": "/api/files",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "files",
+    "method": "GET",
+    "target": "/api/files",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"name\":\"Tux.png\",\"size\":512,\"modifiedAt\":\"2025-07-19T12:00:00Z\"},{\"name\":\"free additional features.jpg\",\"size\":10,\"modifiedAt\":\"2025-07-19T12:00:00Z\"}]\n"
+  },
+  {
+    "name": "edit no auth",
+    "method": "POST",
+    "target": "/api/edit-post/hello-world",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "edit bad body",
+    "method": "POST",
+    "target": "/api/edit-post/hello-world",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid request body: invalid character 'o' in literal null (expecting 'u')\n"
+  },
+  {
+    "name": "edit empty",
+    "method": "POST",
+    "target": "/api/edit-post/hello-world",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Content cannot be empty.\n"
+  },
+  {
+    "name": "edit ok",
+    "method": "POST",
+    "target": "/api/edit-post/hello-world",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\":\"Post updated\"}\n"
+  },
+  {
+    "name": "raw after edit",
+    "method": "GET",
+    "target": "/api/posts/hello-world/raw",
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8"
+    },
+    "body": "# Edited\n\nnew body"
+  },
+  {
+    "name": "edit creates",
+    "method": "POST",
+    "target": "/api/edit-post/created-by-edit",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\":\"Post updated\"}\n"
+  },
+  {
+    "name": "new post missing fields",
+    "method": "POST",
+    "target": "/api/new-post/fresh",
+    "status": 400,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"code\":\"VALIDATION_ERROR\",\"message\":\"Title, author, and content fields in the request body cannot be empty.\"}\n"
+  },
+  {
+    "name": "new post bad body",
+    "method": "POST",
+    "target": "/api/new-post/fresh",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid request body: unexpected EOF\n"
+  },
+  {
+    "name": "new post ok",
+    "method": "POST",
+    "target": "/api/new-post/fresh",
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"id\":\"fresh\",\"message\":\"Post created successfully\",\"url\":\"/posts/fresh\"}\n"
+  },
+  {
+    "name": "raw new post",
+    "method": "GET",
+    "target": "/api/posts/fresh/raw",
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8"
+    },
+    "body": "---\nauthor: me\n---\n\n# Fresh\n\nbody"
+  },
+  {
+    "name": "new post no slug",
+    "method": "POST",
+    "target": "/api/new-post/",
+    "status": 405,
+    "headers": {
+      "Allow": "GET"
+    },
+    "body": ""
+  },
+  {
+    "name": "delete no auth",
+    "method": "POST",
+    "target": "/api/delete-post/fresh",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "delete ok",
+    "method": "POST",
+    "target": "/api/delete-post/fresh",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\":\"Post deleted\"}\n"
+  },
+  {
+    "name": "delete missing",
+    "method": "POST",
+    "target": "/api/delete-post/fresh",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Post not found.\n"
+  },
+  {
+    "name": "upload no files",
+    "method": "POST",
+    "target": "/api/upload-file",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "No files found in the request.\n"
+  },
+  {
+    "name": "upload not multipart",
+    "method": "POST",
+    "target": "/api/upload-file",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "No files found in the request.\n"
+  },
+  {
+    "name": "upload ok",
+    "method": "POST",
+    "target": "/api/upload-file",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"fileName\":\"new file.txt\",\"url\":\"http://blog.example/assets/new file.txt\"}]"
+  },
+  {
+    "name": "upload over https proxy",
+    "method": "POST",
+    "target": "/api/upload-file",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"fileName\":\"second.txt\",\"url\":\"https://blog.example/assets/second.txt\"}]"
+  },
+  {
+    "name": "uploaded asset",
+    "method": "GET",
+    "target": "/assets/new%20file.txt",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/plain; charset=utf-8",
+      "Last-Modified": "\u003cnow\u003e"
+    },
+    "body": "uploaded"
+  },
+  {
+    "name": "delete-file no auth",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 401,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Unauthorized\n"
+  },
+  {
+    "name": "delete-file traversal",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid filename.\n"
+  },
+  {
+    "name": "delete-file empty",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid filename.\n"
+  },
+  {
+    "name": "delete-file bad body",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 400,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "Invalid request body: invalid character 'x' looking for beginning of value\n"
+  },
+  {
+    "name": "delete-file ok",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"message\":\"File deleted\"}\n"
+  },
+  {
+    "name": "delete-file missing",
+    "method": "POST",
+    "target": "/api/delete-file",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "File not found.\n"
+  },
+  {
+    "name": "list posts after writes",
+    "method": "POST",
+    "target": "/api/posts",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "[{\"id\":\"created-by-edit\",\"title\":\"Created\",\"contentHtml\":\"\\u003ch1\\u003eCreated\\u003c/h1\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"\u003cnow\u003e\",\"fileName\":\"created-by-edit.md\"},{\"id\":\"hello-world\",\"title\":\"Edited\",\"contentHtml\":\"\\u003ch1\\u003eEdited\\u003c/h1\\u003e\\n\\n\\u003cp\\u003enew body\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"\u003cnow\u003e\",\"fileName\":\"hello-world.md\"},{\"id\":\"plain\",\"title\":\"First line without heading\",\"contentHtml\":\"\\u003cp\\u003eFirst line without heading\\u003c/p\\u003e\\n\\n\\u003cp\\u003ebody\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"plain.md\"},{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}]\n"
+  },
+  {
+    "name": "asset",
+    "method": "GET",
+    "target": "/assets/Tux.png",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "image/png",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "sha256:18cd27425b3e7aa767c6095014f937f65b4e2eceae5ec1cef9d82d50445ddd81"
+  },
+  {
+    "name": "asset with space",
+    "method": "GET",
+    "target": "/assets/free%20additional%20features.jpg",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "image/jpeg",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "sha256:1b48e21282963dfba2ffff3a4c331471242fe42fd0a51161e56df72085c445c9"
+  },
+  {
+    "name": "asset range",
+    "method": "GET",
+    "target": "/assets/Tux.png",
+    "status": 206,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Range": "bytes 0-9/512",
+      "Content-Type": "image/png",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "sha256:d8dbf201226f139567b127552ffd66244dc7a6d454d24acb33fadfd75092216c"
+  },
+  {
+    "name": "asset not modified",
+    "method": "GET",
+    "target": "/assets/Tux.png",
+    "status": 304,
+    "headers": {
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": ""
+  },
+  {
+    "name": "asset HEAD",
+    "method": "HEAD",
+    "target": "/assets/Tux.png",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "image/png",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": ""
+  },
+  {
+    "name": "asset POST",
+    "method": "POST",
+    "target": "/assets/Tux.png",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "image/png",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "sha256:18cd27425b3e7aa767c6095014f937f65b4e2eceae5ec1cef9d82d50445ddd81"
+  },
+  {
+    "name": "asset missing",
+    "method": "GET",
+    "target": "/assets/missing.png",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "404 page not found\n"
+  },
+  {
+    "name": "asset dir listing",
+    "method": "GET",
+    "target": "/assets/",
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "\u003cnow\u003e"
+    },
+    "body": "\u003c!doctype html\u003e\n\u003cmeta name=\"viewport\" content=\"width=device-width\"\u003e\n\u003cpre\u003e\n\u003ca href=\"Tux.png\"\u003eTux.png\u003c/a\u003e\n\u003ca href=\"free%20additional%20features.jpg\"\u003efree additional features.jpg\u003c/a\u003e\n\u003ca href=\"new%20file.txt\"\u003enew file.txt\u003c/a\u003e\n\u003c/pre\u003e\n"
+  },
+  {
+    "name": "assets no slash",
+    "method": "GET",
+    "target": "/assets",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "asset traversal",
+    "method": "GET",
+    "target": "/assets/../plain.md",
+    "status": 404,
+    "headers": {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    },
+    "body": "404 page not found\n"
+  },
+  {
+    "name": "spa root",
+    "method": "GET",
+    "target": "/",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "spa index.html",
+    "method": "GET",
+    "target": "/index.html",
+    "status": 301,
+    "headers": {
+      "Location": "./"
+    },
+    "body": ""
+  },
+  {
+    "name": "spa static file",
+    "method": "GET",
+    "target": "/static/js/main.js",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/javascript; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "console.log(1)\n"
+  },
+  {
+    "name": "spa manifest",
+    "method": "GET",
+    "target": "/manifest.json",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "application/json",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "{\"name\":\"blog\"}"
+  },
+  {
+    "name": "spa client route",
+    "method": "GET",
+    "target": "/posts/hello-world",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "spa korean client route",
+    "method": "GET",
+    "target": "/posts/%EB%A6%AC%EB%88%85%EC%8A%A4-%EB%8D%B0%EC%8A%A4%ED%81%AC%ED%86%B1-%EC%82%AC%EC%9A%A9-%EC%8B%9C-im%EC%9D%98-%EB%AC%B8%EC%A0%9C",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "spa directory",
+    "method": "GET",
+    "target": "/static/js",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "spa HEAD",
+    "method": "HEAD",
+    "target": "/",
+    "status": 405,
+    "headers": {
+      "Allow": "GET"
+    },
+    "body": ""
+  },
+  {
+    "name": "unknown api POST",
+    "method": "POST",
+    "target": "/api/unknown",
+    "status": 405,
+    "headers": {
+      "Allow": "GET"
+    },
+    "body": ""
+  },
+  {
+    "name": "unknown api GET",
+    "method": "GET",
+    "target": "/api/unknown",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Content-Type": "text/html; charset=utf-8",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT"
+    },
+    "body": "\u003c!doctype html\u003e\u003ctitle\u003eSPA\u003c/title\u003e\n"
+  },
+  {
+    "name": "PUT route",
+    "method": "PUT",
+    "target": "/api/posts",
+    "status": 405,
+    "headers": {
+      "Allow": "POST, GET"
+    },
+    "body": ""
+  },
+  {
+    "name": "OPTIONS without CORS",
+    "method": "OPTIONS",
+    "target": "/api/posts",
+    "status": 405,
+    "headers": {
+      "Allow": "POST, GET"
+    },
+    "body": ""
+  },
+  {
+    "name": "cors preflight",
+    "method": "OPTIONS",
+    "target": "/api/posts",
+    "status": 204,
+    "headers": {
+      "Vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
+    },
+    "body": ""
+  },
+  {
+    "name": "cors preflight sorted headers",
+    "method": "OPTIONS",
+    "target": "/api/edit-post/x",
+    "status": 204,
+    "headers": {
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Headers": "authorization,content-type",
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Origin": "https://chatter.pw",
+      "Access-Control-Max-Age": "3600",
+      "Vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
+    },
+    "body": ""
+  },
+  {
+    "name": "cors preflight bad origin",
+    "method": "OPTIONS",
+    "target": "/api/posts",
+    "status": 204,
+    "headers": {
+      "Vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
+    },
+    "body": ""
+  },
+  {
+    "name": "cors simple",
+    "method": "POST",
+    "target": "/api/posts",
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Origin": "http://localhost:3000",
+      "Content-Type": "application/json",
+      "Vary": "Origin"
+    },
+    "body": "[{\"id\":\"hello-world\",\"title\":\"Hello World\",\"contentHtml\":\"\\u003ch1\\u003eHello World\\u003c/h1\\u003e\\n\\n\\u003cp\\u003eSome \\u003cb\\u003etext\\u003c/b\\u003e \\u0026amp; more.\\u003c/p\\u003e\\n\",\"author\":\"tester\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"hello-world.md\"},{\"id\":\"plain\",\"title\":\"First line without heading\",\"contentHtml\":\"\\u003cp\\u003eFirst line without heading\\u003c/p\\u003e\\n\\n\\u003cp\\u003ebody\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"plain.md\"},{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}]\n"
+  },
+  {
+    "name": "cors simple bad origin",
+    "method": "POST",
+    "target": "/api/posts",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Vary": "Origin"
+    },
+    "body": "[{\"id\":\"hello-world\",\"title\":\"Hello World\",\"contentHtml\":\"\\u003ch1\\u003eHello World\\u003c/h1\\u003e\\n\\n\\u003cp\\u003eSome \\u003cb\\u003etext\\u003c/b\\u003e \\u0026amp; more.\\u003c/p\\u003e\\n\",\"author\":\"tester\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"hello-world.md\"},{\"id\":\"plain\",\"title\":\"First line without heading\",\"contentHtml\":\"\\u003cp\\u003eFirst line without heading\\u003c/p\\u003e\\n\\n\\u003cp\\u003ebody\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"plain.md\"},{\"id\":\"리눅스-데스크톱-사용-시-im의-문제\",\"title\":\"리눅스 데스크톱\",\"contentHtml\":\"\\u003ch1\\u003e리눅스 데스크톱\\u003c/h1\\u003e\\n\\n\\u003cp\\u003e본문입니다.\\u003c/p\\u003e\\n\",\"author\":\"블로그 관리자\",\"createdAt\":\"2025-07-19T21:00:00+09:00\",\"fileName\":\"리눅스-데스크톱-사용-시-im의-문제.md\"}]\n"
+  },
+  {
+    "name": "cors asset",
+    "method": "GET",
+    "target": "/assets/Tux.png",
+    "status": 200,
+    "headers": {
+      "Accept-Ranges": "bytes",
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Origin": "https://chatter.pw",
+      "Content-Type": "image/png",
+      "Last-Modified": "Sat, 19 Jul 2025 12:00:00 GMT",
+      "Vary": "Origin"
+    },
+    "body": "sha256:18cd27425b3e7aa767c6095014f937f65b4e2eceae5ec1cef9d82d50445ddd81"
+  }
+]

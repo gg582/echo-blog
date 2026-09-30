@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gg582/chi-blog/blog-backend/database"
-	"github.com/gg582/chi-blog/blog-backend/utils"
+	"github.com/gg582/echo-blog/blog-backend/database"
+	"github.com/gg582/echo-blog/blog-backend/utils"
 )
 
 

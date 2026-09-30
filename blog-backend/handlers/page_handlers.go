@@ -10,8 +10,8 @@ import (
 
 	"github.com/russross/blackfriday/v2"
 
-	"github.com/gg582/chi-blog/blog-backend/models"
-	"github.com/gg582/chi-blog/blog-backend/utils"
+	"github.com/gg582/echo-blog/blog-backend/models"
+	"github.com/gg582/echo-blog/blog-backend/utils"
 )
 
 // Handlers groups the HTTP handlers that depend on filesystem paths.
