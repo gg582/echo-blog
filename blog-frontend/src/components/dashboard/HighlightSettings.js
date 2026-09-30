@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import hljs from '../../highlight/hljs';
 import { BASE_KEYS, DEFAULT_PRESET_ID, PRESETS, findPreset } from '../../highlight/palettes';
-import { applyHighlight, defaultHighlight } from '../../highlight/theme';
+import { TOKENS, applyHighlight, defaultHighlight, samePalette } from '../../highlight/theme';
 import { useSettings } from '../../context/SettingsContext';
 
 // What each base16 slot colors, following the base16 styling guidelines.
@@ -61,7 +61,24 @@ Categories=Network;WebBrowser;`,
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
-const samePalette = (a, b) => BASE_KEYS.every((key) => a.colors[key] === b.colors[key]);
+// The color a token actually renders in: its override or its base16 slot.
+const tokenColor = (palette, name) =>
+  (palette.tokens && palette.tokens[name] && palette.tokens[name].color) || palette.colors[TOKENS[name].slot];
+
+// Tokens shown in the preset swatches.
+const SWATCH_TOKENS = ['keyword', 'type', 'string', 'number', 'function', 'comment'];
+
+const copyPalette = (p) => ({
+  preset: p.id || p.preset,
+  colors: { ...p.colors },
+  tokens: JSON.parse(JSON.stringify(p.tokens || {})),
+});
+
+// The preset a palette matches exactly, or "custom".
+const presetIdOf = (palette) => {
+  const match = PRESETS.find((p) => samePalette(p, palette));
+  return match ? match.id : 'custom';
+};
 
 // Lets the admin pick a preset palette, fine-tune individual colors with a
 // live preview, and save the result as the site-wide code highlight theme.
@@ -71,6 +88,7 @@ function HighlightSettings({ onNotify }) {
   const [hexInputs, setHexInputs] = useState(highlight.colors);
   const [saving, setSaving] = useState(false);
   const [showMinor, setShowMinor] = useState(false);
+  const [showTokens, setShowTokens] = useState(false);
   const previewRef = useRef(null);
 
   // Follow the saved theme when it loads or changes elsewhere.
@@ -101,17 +119,33 @@ function HighlightSettings({ onNotify }) {
     setHexInputs(next.colors);
   };
 
-  const pickPreset = (preset) => loadPalette({ preset: preset.id, colors: { ...preset.colors } });
+  const pickPreset = (preset) => loadPalette(copyPalette(preset));
+
+  // updateDraft applies an edit; a palette edited away from its preset is
+  // saved as "custom".
+  const updateDraft = (colors, tokens) => {
+    const next = { colors, tokens };
+    setDraft({ ...next, preset: presetIdOf(next) });
+  };
 
   const setColor = (key, value) => {
     setHexInputs((prev) => ({ ...prev, [key]: value }));
     if (HEX_COLOR.test(value)) {
-      const colors = { ...draft.colors, [key]: value.toLowerCase() };
-      // A palette edited away from its preset is saved as "custom".
-      const preset = PRESETS.find((p) => samePalette(p, { colors }));
-      setDraft({ preset: preset ? preset.id : 'custom', colors });
+      updateDraft({ ...draft.colors, [key]: value.toLowerCase() }, draft.tokens);
     }
   };
+
+  // setToken merges a change into one token's override; an override with
+  // nothing left is removed so the token follows its base16 slot again.
+  const setToken = (name, change) => {
+    const merged = { ...(draft.tokens[name] || {}), ...change };
+    Object.keys(merged).forEach((k) => { if (merged[k] === undefined || merged[k] === false) { delete merged[k]; } });
+    const tokens = { ...draft.tokens };
+    if (Object.keys(merged).length > 0) { tokens[name] = merged; } else { delete tokens[name]; }
+    updateDraft(draft.colors, tokens);
+  };
+
+  const overriddenCount = Object.keys(draft.tokens || {}).length;
 
   const save = async () => {
     setSaving(true);
@@ -139,8 +173,8 @@ function HighlightSettings({ onNotify }) {
             title={preset.label}
           >
             <span className="hl-swatch" style={{ background: preset.colors.base00 }}>
-              {['base0E', 'base0B', 'base09', 'base0D', 'base08', 'base03'].map((key) => (
-                <span key={key} style={{ background: preset.colors[key] }} />
+              {SWATCH_TOKENS.map((name) => (
+                <span key={name} style={{ background: tokenColor(preset, name) }} />
               ))}
             </span>
             <span className="hl-preset-label">{preset.label}</span>
@@ -177,6 +211,56 @@ function HighlightSettings({ onNotify }) {
           ))}
           <button type="button" className="btn btn-link" onClick={() => setShowMinor(!showMinor)}>
             {showMinor ? 'Hide rarely used colors' : 'Show all 16 colors'}
+          </button>
+
+          <h3 className="hl-tokens-title">
+            Token styles
+            <span className="hl-current">{overriddenCount} overridden</span>
+          </h3>
+          <p className="hl-hint">
+            Style single tokens beyond the 16 colors, e.g. types apart from keywords, or bold keywords.
+            Unchecked colors follow the slot shown.
+          </p>
+          {showTokens && Object.entries(TOKENS).map(([name, token]) => {
+            const t = draft.tokens[name] || {};
+            return (
+              <div key={name} className="hl-token">
+                <input
+                  type="checkbox"
+                  checked={!!t.color}
+                  onChange={(e) => setToken(name, { color: e.target.checked ? tokenColor(draft, name) : undefined })}
+                  aria-label={`Own color for ${token.label}`}
+                />
+                <input
+                  type="color"
+                  value={tokenColor(draft, name)}
+                  disabled={!t.color}
+                  onChange={(e) => setToken(name, { color: e.target.value })}
+                  aria-label={`${token.label} color`}
+                />
+                <button
+                  type="button"
+                  className={`hl-style${t.bold ? ' hl-style-on' : ''}`}
+                  onClick={() => setToken(name, { bold: !t.bold })}
+                  aria-pressed={!!t.bold}
+                  title="Bold"
+                ><b>B</b></button>
+                <button
+                  type="button"
+                  className={`hl-style${t.italic ? ' hl-style-on' : ''}`}
+                  onClick={() => setToken(name, { italic: !t.italic })}
+                  aria-pressed={!!t.italic}
+                  title="Italic"
+                ><i>I</i></button>
+                <span className="hl-role">
+                  {token.label}
+                  {!t.color && <span className="hl-slot"> · {token.slot}</span>}
+                </span>
+              </div>
+            );
+          })}
+          <button type="button" className="btn btn-link" onClick={() => setShowTokens(!showTokens)}>
+            {showTokens ? 'Hide token styles' : 'Edit token styles'}
           </button>
         </div>
 

@@ -23,12 +23,14 @@ func TestLoadMissingIsEmpty(t *testing.T) {
 
 func TestSaveLoadRoundTrip(t *testing.T) {
 	store := NewStore(filepath.Join(t.TempDir(), "settings.json"))
-	want := Settings{Highlight: &Highlight{Preset: "monokai", Colors: palette("#AbCdEf")}}
+	want := Settings{Highlight: &Highlight{Preset: "seoulism", Colors: palette("#AbCdEf"),
+		Tokens: map[string]TokenStyle{"type": {Color: "#efeeea", Italic: true}, "keyword": {Bold: true}}}}
 	if err := store.Save(want); err != nil {
 		t.Fatal(err)
 	}
 	got, err := store.Load()
-	if err != nil || got.Highlight.Preset != "monokai" || got.Highlight.Colors["base0F"] != "#AbCdEf" {
+	if err != nil || got.Highlight.Preset != "seoulism" || got.Highlight.Colors["base0F"] != "#AbCdEf" ||
+		got.Highlight.Tokens["type"] != (TokenStyle{Color: "#efeeea", Italic: true}) || !got.Highlight.Tokens["keyword"].Bold {
 		t.Fatalf("Load = %+v, %v", got.Highlight, err)
 	}
 }

@@ -130,3 +130,94 @@ code.hljs {
 .hljs-meta-keyword {
   font-weight: bold;
 }
+
+/* ---------------------------------------------------------------------------
+   Token overrides.
+   A palette may style individual tokens beyond the 16 base16 slots, e.g. to
+   give types a different color than keywords or make keywords bold, as the
+   Vim themes seoulism and monodraw do. theme.js sets --hl-<token> (color),
+   --hl-<token>-weight and --hl-<token>-style only for tokens the palette
+   overrides; otherwise each rule falls back to its base16 slot and inherited
+   font, so palettes without overrides render exactly as above.
+   These rules come last so they win over the base16 rules of equal
+   specificity. The token names are listed in theme.js (TOKENS).
+   --------------------------------------------------------------------------- */
+
+.hljs-comment {
+  color: var(--hl-comment, var(--hl-base03));
+  font-weight: var(--hl-comment-weight, inherit);
+  font-style: var(--hl-comment-style, inherit);
+}
+.hljs-keyword {
+  color: var(--hl-keyword, var(--hl-base0E));
+  font-weight: var(--hl-keyword-weight, inherit);
+  font-style: var(--hl-keyword-style, inherit);
+}
+.hljs-type {
+  color: var(--hl-type, var(--hl-base0E));
+  font-weight: var(--hl-type-weight, inherit);
+  font-style: var(--hl-type-style, inherit);
+}
+.hljs-built_in {
+  color: var(--hl-built_in, var(--hl-base0C));
+  font-weight: var(--hl-built_in-weight, inherit);
+  font-style: var(--hl-built_in-style, inherit);
+}
+.hljs-title,
+.hljs-title.class_ {
+  color: var(--hl-title, var(--hl-base0A));
+  font-weight: var(--hl-title-weight, inherit);
+  font-style: var(--hl-title-style, inherit);
+}
+.hljs-title.function_,
+.hljs-function .hljs-title {
+  color: var(--hl-function, var(--hl-base0D));
+  font-weight: var(--hl-function-weight, inherit);
+  font-style: var(--hl-function-style, inherit);
+}
+.hljs-string {
+  color: var(--hl-string, var(--hl-base0B));
+  font-weight: var(--hl-string-weight, inherit);
+  font-style: var(--hl-string-style, inherit);
+}
+.hljs-number {
+  color: var(--hl-number, var(--hl-base09));
+  font-weight: var(--hl-number-weight, inherit);
+  font-style: var(--hl-number-style, inherit);
+}
+.hljs-literal {
+  color: var(--hl-literal, var(--hl-base09));
+  font-weight: var(--hl-literal-weight, inherit);
+  font-style: var(--hl-literal-style, inherit);
+}
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--hl-variable, var(--hl-base08));
+  font-weight: var(--hl-variable-weight, inherit);
+  font-style: var(--hl-variable-style, inherit);
+}
+.hljs-attr {
+  color: var(--hl-attr, var(--hl-base09));
+  font-weight: var(--hl-attr-weight, inherit);
+  font-style: var(--hl-attr-style, inherit);
+}
+.hljs-meta {
+  color: var(--hl-meta, var(--hl-base0F));
+  font-weight: var(--hl-meta-weight, inherit);
+  font-style: var(--hl-meta-style, inherit);
+}
+.hljs-section {
+  color: var(--hl-section, var(--hl-base0D));
+  font-weight: var(--hl-section-weight, inherit);
+  font-style: var(--hl-section-style, inherit);
+}
+.hljs-operator {
+  color: var(--hl-operator, var(--hl-base05));
+  font-weight: var(--hl-operator-weight, inherit);
+  font-style: var(--hl-operator-style, inherit);
+}
+.hljs-punctuation {
+  color: var(--hl-punctuation, var(--hl-base05));
+  font-weight: var(--hl-punctuation-weight, inherit);
+  font-style: var(--hl-punctuation-style, inherit);
+}

@@ -2,13 +2,14 @@
 // highlight.js/styles/base16/*.css (highlight.js 11.12.0).
 // Each palette maps base00..base0F to a color; src/highlight/theme.css maps
 // highlight.js token classes to these slots the same way the base16 themes do.
+// A palette may also have `tokens`: per-token overrides (see TOKENS in theme.js).
 
 export const BASE_KEYS = [
   'base00', 'base01', 'base02', 'base03', 'base04', 'base05', 'base06', 'base07',
   'base08', 'base09', 'base0A', 'base0B', 'base0C', 'base0D', 'base0E', 'base0F',
 ];
 
-export const PRESETS = [
+const BASE16_PRESETS = [
   {
     id: 'github',
     label: 'GitHub (default)',
@@ -379,6 +380,121 @@ export const PRESETS = [
     },
   },
 ];
+
+// Ports of the author's Vim colorschemes. Each value comes from the Vim
+// highlight group named in the comment; `tokens` carries what the 16 base16
+// slots cannot express (types apart from keywords, bold and italic).
+const VIM_PRESETS = [
+  {
+    // https://github.com/gg582/seoulism.vim (colors/seoulism.vim)
+    id: 'seoulism',
+    label: 'Seoulism',
+    dark: true,
+    colors: {
+      base00: '#111116', // Normal bg
+      base01: '#1a1a22', // bg_alt
+      base02: '#2f4fa3', // Visual
+      base03: '#7f85ac', // Comment
+      base04: '#5f6770', // Delimiter (tag brackets)
+      base05: '#b6b5a8', // Normal fg
+      base06: '#d7d6d2', // fg_sub
+      base07: '#efeeea', // fg_bright
+      base08: '#e05a55', // Statement (HTML tag names)
+      base09: '#6f8ee6', // Constant
+      base0A: '#efeeea', // Type
+      base0B: '#e5c15a', // String
+      base0C: '#359489', // Special
+      base0D: '#6bc0b6', // Function
+      base0E: '#e05a55', // Keyword
+      base0F: '#6f8ee6', // PreProc
+    },
+    tokens: {
+      comment: { italic: true },
+      keyword: { bold: true },
+      type: { color: '#efeeea', italic: true }, // Type
+      title: { italic: true }, // Structure
+      built_in: { color: '#6bc0b6' }, // @function.builtin -> Function
+      number: { color: '#e5c15a' }, // Number
+      literal: { color: '#f0d487' }, // Boolean
+      variable: { color: '#b6b5a8' }, // Identifier
+      section: { color: '#e05a55', bold: true }, // Title
+      punctuation: { color: '#5f6770' }, // Delimiter
+    },
+  },
+  {
+    // https://github.com/gg582/monodraw.vim (colors/monodraw-dark.vim)
+    id: 'monodraw-dark',
+    label: 'Monodraw Dark',
+    dark: true,
+    colors: {
+      base00: '#0b0d10', // Normal bg
+      base01: '#161a20', // CursorLine
+      base02: '#2c323c', // Visual
+      base03: '#5c6670', // Comment
+      base04: '#e5c07b', // htmlTag -> Type
+      base05: '#cfd3d6', // Normal fg
+      base06: '#abb2bf', // CursorLineNr
+      base07: '#ffffff', // PmenuSel fg
+      base08: '#e5c07b', // htmlTagName -> Type
+      base09: '#84a0c6', // Constant (htmlArg)
+      base0A: '#e5c07b', // Type
+      base0B: '#8da1b9', // String
+      base0C: '#d19a66', // Special
+      base0D: '#61afef', // Function
+      base0E: '#c678dd', // Keyword
+      base0F: '#56b6c2', // PreProc
+    },
+    tokens: {
+      comment: { italic: true },
+      keyword: { bold: true },
+      type: { color: '#e5c07b' }, // Type
+      number: { bold: true },
+      literal: { bold: true }, // Boolean
+      variable: { color: '#cfd3d6' }, // Identifier
+      section: { color: '#61afef', bold: true }, // Title
+      operator: { color: '#9fb0c8' }, // Operator
+      punctuation: { color: '#7a828a' }, // Delimiter
+    },
+  },
+  {
+    // https://github.com/gg582/monodraw.vim (colors/monodraw-light.vim)
+    id: 'monodraw-light',
+    label: 'Monodraw Light',
+    dark: false,
+    colors: {
+      base00: '#f4f4f4', // Normal bg
+      base01: '#e8e8e8', // CursorLine
+      base02: '#dde1e6', // Visual
+      base03: '#6f6f6f', // Comment
+      base04: '#0043ce', // htmlTag -> Type
+      base05: '#161616', // Normal fg
+      base06: '#393939', // Operator
+      base07: '#ffffff', // PmenuSel fg
+      base08: '#0043ce', // htmlTagName -> Type
+      base09: '#b28600', // Constant (htmlArg)
+      base0A: '#0043ce', // Type
+      base0B: '#005d5d', // String
+      base0C: '#8a3ffc', // Special
+      base0D: '#0f62fe', // Function
+      base0E: '#d12771', // Keyword
+      base0F: '#0072c3', // PreProc
+    },
+    tokens: {
+      comment: { italic: true },
+      keyword: { bold: true },
+      type: { color: '#0043ce' }, // Type
+      number: { bold: true },
+      literal: { bold: true }, // Boolean
+      variable: { color: '#161616' }, // Identifier
+      section: { color: '#0043ce', bold: true }, // Title
+      operator: { color: '#393939' }, // Operator
+      punctuation: { color: '#525252' }, // Delimiter
+    },
+  },
+];
+
+// The default first, then the Vim ports, then the other base16 schemes.
+export const PRESETS = [BASE16_PRESETS[0], ...VIM_PRESETS, ...BASE16_PRESETS.slice(1)];
 
 export const DEFAULT_PRESET_ID = 'github';
 

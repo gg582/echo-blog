@@ -20,8 +20,11 @@
   be copied as a link or Markdown snippet, **replaced** (new content under the
   same name, so existing links keep working), **renamed** (optionally rewriting
   the links in every post) and deleted one at a time or in bulk.
-- **Code colors**: pick one of 16 base16 palettes or edit any of the 16 colors,
-  with a live preview, and save it for the whole site. The palette is stored
+- **Code colors**: pick a palette (GitHub default, ports of the Vim themes
+  [seoulism](https://github.com/gg582/seoulism.vim) and
+  [monodraw](https://github.com/gg582/monodraw.vim) dark/light, and 15 base16
+  schemes), edit any of the 16 colors or style single tokens (own color, bold,
+  italic), with a live preview, and save it for the whole site. The palette is stored
   in `SETTINGS_PATH` and applied through CSS variables, so no rebuild is needed.
 
 Admin API used by the dashboard (all require `Authorization: Bearer <token>`):
@@ -33,7 +36,7 @@ Admin API used by the dashboard (all require `Authorization: Bearer <token>`):
 | POST | `/api/replace-file` | multipart `filename`, `file` | Overwrite an existing file's content |
 | POST | `/api/rename-file` | `{"from", "to", "updateReferences"}` | Rename; `409` if `to` exists |
 | POST | `/api/delete-file` | `{"filename"}` | Delete a file |
-| POST | `/api/settings` | `{"highlight": {"preset", "colors": {base00..base0F}}}` | Save site settings (`GET /api/settings` is public) |
+| POST | `/api/settings` | `{"highlight": {"preset", "colors": {base00..base0F}, "tokens": {"type": {"color", "bold", "italic"}}}}` | Save site settings (`GET /api/settings` is public) |
 
 ## Configuration
 

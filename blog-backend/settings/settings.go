@@ -19,6 +19,15 @@ var baseKeys = []string{
 	"base08", "base09", "base0A", "base0B", "base0C", "base0D", "base0E", "base0F",
 }
 
+// tokenNames are the tokens a palette may style individually; they match
+// TOKENS in blog-frontend/src/highlight/theme.js.
+var tokenNames = map[string]bool{
+	"comment": true, "keyword": true, "type": true, "built_in": true,
+	"function": true, "title": true, "string": true, "number": true,
+	"literal": true, "variable": true, "attr": true, "meta": true,
+	"section": true, "operator": true, "punctuation": true,
+}
+
 var (
 	hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
 	presetID = regexp.MustCompile(`^[a-z0-9-]{1,64}$`)
@@ -30,6 +39,16 @@ type Highlight struct {
 	Preset string `json:"preset"`
 	// Colors maps every base16 slot (base00..base0F) to a #rrggbb color.
 	Colors map[string]string `json:"colors"`
+	// Tokens optionally styles single tokens beyond the base16 slots.
+	Tokens map[string]TokenStyle `json:"tokens,omitempty"`
+}
+
+// TokenStyle overrides how one token is drawn. An empty Color keeps the
+// token's base16 slot color.
+type TokenStyle struct {
+	Color  string `json:"color,omitempty"`
+	Bold   bool   `json:"bold,omitempty"`
+	Italic bool   `json:"italic,omitempty"`
 }
 
 // Settings is the whole settings document. A nil field means "use the
@@ -57,6 +76,14 @@ func (s Settings) Validate() error {
 		}
 		if !hexColor.MatchString(color) {
 			return fmt.Errorf("highlight color %s must look like #rrggbb, got %q", key, color)
+		}
+	}
+	for name, style := range h.Tokens {
+		if !tokenNames[name] {
+			return fmt.Errorf("unknown highlight token %q", name)
+		}
+		if style.Color != "" && !hexColor.MatchString(style.Color) {
+			return fmt.Errorf("highlight token %s color must look like #rrggbb, got %q", name, style.Color)
 		}
 	}
 	return nil
