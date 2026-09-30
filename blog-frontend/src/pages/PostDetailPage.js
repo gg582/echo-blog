@@ -1,4 +1,4 @@
-// ~/chi-blog/blog-frontend/src/pages/PostDetailPage.js
+// ~/echo-blog/blog-frontend/src/pages/PostDetailPage.js
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";

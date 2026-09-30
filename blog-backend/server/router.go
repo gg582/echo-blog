@@ -1,87 +1,67 @@
 package server
 
 import (
+	"errors"
+	"log"
 	"net/http"
-	"path/filepath"
+
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
+	"github.com/rs/cors"
 
 	"github.com/gg582/echo-blog/blog-backend/config"
 	"github.com/gg582/echo-blog/blog-backend/handlers"
-	"github.com/gg582/echo-blog/blog-backend/utils"
-	"github.com/gg582/echo-blog/blog-backend/workerpool"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/cors"
 )
 
-const (
-	numWorkers   = 5
-	jobQueueSize = 48
-)
-
-func NewRouter(cfg *config.Config) http.Handler {
-	handlers.FileJobQueue = make(chan workerpool.UploadJob, jobQueueSize)
-	workerpool.NewWorkerPool(numWorkers, handlers.FileJobQueue)
-
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+// NewRouter builds the Echo instance serving the API, uploaded assets and the
+// frontend.
+func NewRouter(cfg *config.Config, h *handlers.Handlers) *echo.Echo {
+	e := echo.NewWithConfig(echo.Config{
+		HTTPErrorHandler: errorHandler,
+		Router: echo.NewRouter(echo.RouterConfig{
+			// Like net/http muxes: OPTIONS without CORS is a 405, not an automatic 204.
+			OptionsMethodHandler:    methodNotAllowed,
+			MethodNotAllowedHandler: methodNotAllowed,
+		}),
+	})
 
 	if len(cfg.AllowedOrigins) > 0 {
-		r.Use(cors.New(cors.Options{
+		// rs/cors runs before routing so preflight requests never reach the router.
+		e.Pre(echo.WrapMiddleware(cors.New(cors.Options{
 			AllowedOrigins:   cfg.AllowedOrigins,
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"},
 			AllowCredentials: true,
 			MaxAge:           3600,
-		}).Handler)
+		}).Handler))
 	}
+	e.Use(requestLogger(), middleware.Recover())
 
-	h := handlers.NewHandlers(cfg.PostsDir, cfg.AssetsDir, cfg.AboutMD, cfg.ContactMD)
-	utils.SetAuthSecret(cfg.AuthSecret)
+	h.Register(e)
+	e.Any("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", http.FileServer(http.Dir(cfg.AssetsDir)))))
+	e.GET("/*", echo.WrapHandler(spaHandler(cfg.StaticDir)))
 
-	r.Post("/api/posts", h.GetPostsHandler)
-	r.Post("/api/posts/{id}", h.GetPostByIDHandler)
-	r.Get("/api/posts/{id}/raw", h.GetRawPostHandler)
-	r.Post("/api/edit-post/{id}", handlers.RequireAuth(h.EditPostHandler))
-	r.Post("/api/delete-post/{id}", handlers.RequireAuth(h.DeletePostHandler))
-	r.Get("/api/files", handlers.RequireAuth(h.GetFilesHandler))
-	r.Post("/api/delete-file", handlers.RequireAuth(h.DeleteFileHandler))
-	r.Get("/api/about", h.GetAboutPageHandler)
-	r.Get("/api/contact", h.GetContactPageHandler)
-	r.Post("/api/new-post/{id}", h.CreateNewPostHandler)
-	r.Post("/api/upload-file", h.UploadFile)
-	r.Post("/api/login", handlers.LoginHandler)
-
-	r.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.Dir(cfg.AssetsDir))))
-	r.Get("/*", spaFileHandler(cfg.StaticDir))
-
-	return r
+	return e
 }
 
-// spaFileHandler serves files from staticDir and falls back to index.html
-// for paths that match no file, so client-side routes resolve in the SPA.
-func spaFileHandler(staticDir string) http.HandlerFunc {
-	staticFS := http.FileServer(http.Dir(staticDir))
-	indexHTML := filepath.Join(staticDir, "index.html")
+// errorHandler renders errors the way net/http does: HTTP errors as a
+// text/plain body, 404 as "404 page not found" and 405 with an empty body.
+func errorHandler(c *echo.Context, err error) {
+	if resp, _ := echo.UnwrapResponse(c.Response()); resp != nil && resp.Committed {
+		return
+	}
+	w, r := c.Response(), c.Request()
 
-	return func(w http.ResponseWriter, req *http.Request) {
-		if req.URL.Path == "/" {
-			http.ServeFile(w, req, indexHTML)
-			return
-		}
-
-		f, err := http.Dir(staticDir).Open(req.URL.Path)
-		if err != nil {
-			http.ServeFile(w, req, indexHTML)
-			return
-		}
-		defer f.Close()
-
-		if stat, err := f.Stat(); err != nil || stat.IsDir() {
-			http.ServeFile(w, req, indexHTML)
-			return
-		}
-
-		staticFS.ServeHTTP(w, req)
+	var he *echo.HTTPError
+	switch {
+	case errors.As(err, &he):
+		http.Error(w, he.Message, he.Code)
+	case echo.StatusCode(err) == http.StatusNotFound:
+		http.NotFound(w, r)
+	case echo.StatusCode(err) == http.StatusMethodNotAllowed:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	default:
+		log.Printf("%s %s: %v", r.Method, r.URL.RequestURI(), err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

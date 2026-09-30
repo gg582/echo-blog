@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -10,38 +11,63 @@ import (
 	"os"
 	"time"
 
-	"github.com/gg582/echo-blog/blog-backend/config"
-	"github.com/gg582/echo-blog/blog-backend/database"
 	"golang.org/x/crypto/acme/autocert"
+
+	"github.com/gg582/echo-blog/blog-backend/config"
 )
 
-// Serve starts the blog server according to cfg. It returns only when the
-// server stops, with a non-nil error unless shutdown was clean.
-func Serve(cfg *config.Config, handler http.Handler) error {
-	database.InitDatabase(cfg.DBPath)
-	log.Println("Database loaded.")
+// shutdownTimeout bounds how long in-flight requests may take after ctx ends.
+const shutdownTimeout = 10 * time.Second
 
+// Run serves the app according to its config until ctx is cancelled, then
+// shuts down gracefully. It returns nil on a clean shutdown.
+func (a *App) Run(ctx context.Context) error {
+	cfg := a.cfg
 	scheme := "HTTP"
 	if cfg.UseHTTPS {
 		scheme = "HTTPS"
 	}
 	log.Printf("Server starting on %s (%s)...", cfg.ServerAddr, scheme)
 
-	if !cfg.UseHTTPS {
-		return listenAndServe(cfg.ServerAddr, handler)
-	}
-
-	if fileExists(cfg.TLSCertFile) && fileExists(cfg.TLSKeyFile) {
+	srv := &http.Server{Addr: cfg.ServerAddr, Handler: a.handler}
+	switch {
+	case !cfg.UseHTTPS:
+		return serve(ctx, srv, srv.ListenAndServe)
+	case fileExists(cfg.TLSCertFile) && fileExists(cfg.TLSKeyFile):
 		log.Printf("Using local TLS certificate for %s.", cfg.TLSDomain)
-		return http.ListenAndServeTLS(cfg.ServerAddr, cfg.TLSCertFile, cfg.TLSKeyFile, handler)
+		return serve(ctx, srv, func() error { return srv.ListenAndServeTLS(cfg.TLSCertFile, cfg.TLSKeyFile) })
+	default:
+		return serveWithAutocert(ctx, cfg, srv)
+	}
+}
+
+// serve runs listen until it fails or ctx ends, in which case srv is shut
+// down gracefully.
+func serve(ctx context.Context, srv *http.Server, listen func() error) error {
+	errc := make(chan error, 1)
+	go func() { errc <- listen() }()
+
+	select {
+	case err := <-errc:
+		return fmt.Errorf("server failed on %s: %w", srv.Addr, err)
+	case <-ctx.Done():
 	}
 
-	return serveWithAutocert(cfg, handler)
+	log.Printf("Shutting down server on %s...", srv.Addr)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		return fmt.Errorf("shut down server on %s: %w", srv.Addr, err)
+	}
+	if err := <-errc; err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+	return nil
 }
 
 // serveWithAutocert obtains a certificate from Let's Encrypt via the HTTP-01
 // challenge and serves HTTPS with it.
-func serveWithAutocert(cfg *config.Config, handler http.Handler) error {
+func serveWithAutocert(ctx context.Context, cfg *config.Config, srv *http.Server) error {
 	if err := os.MkdirAll(cfg.ACMECacheDir, 0o700); err != nil {
 		return fmt.Errorf("create autocert cache directory %s: %w", cfg.ACMECacheDir, err)
 	}
@@ -57,46 +83,27 @@ func serveWithAutocert(cfg *config.Config, handler http.Handler) error {
 	if err != nil {
 		return fmt.Errorf("bind HTTP-01 challenge server on %s: %w", cfg.HTTPChallengeAddr, err)
 	}
-	challengeServer := &http.Server{Handler: manager.HTTPHandler(nil)}
+	challengeSrv := &http.Server{Addr: cfg.HTTPChallengeAddr, Handler: manager.HTTPHandler(nil)}
 
-	challengeErrChan := make(chan error, 1)
+	// The challenge server lives exactly as long as the HTTPS server.
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	challengeErr := make(chan error, 1)
 	go func() {
 		log.Printf("HTTP-01 challenge server listening on %s.", cfg.HTTPChallengeAddr)
-		if serveErr := challengeServer.Serve(challengeListener); serveErr != nil && serveErr != http.ErrServerClosed {
-			challengeErrChan <- serveErr
-		}
+		challengeErr <- serve(ctx, challengeSrv, func() error { return challengeSrv.Serve(challengeListener) })
 	}()
-	select {
-	case serveErr := <-challengeErrChan:
-		return fmt.Errorf("HTTP-01 challenge server failed: %w", serveErr)
-	default:
+
+	srv.TLSConfig = &tls.Config{
+		MinVersion:     tls.VersionTLS12,
+		GetCertificate: manager.GetCertificate,
 	}
-
-	server := &http.Server{
-		Addr:    cfg.ServerAddr,
-		Handler: handler,
-		TLSConfig: &tls.Config{
-			MinVersion:     tls.VersionTLS12,
-			GetCertificate: manager.GetCertificate,
-		},
+	err = serve(ctx, srv, func() error { return srv.ListenAndServeTLS("", "") })
+	cancel()
+	if cerr := <-challengeErr; cerr != nil {
+		log.Printf("HTTP-01 challenge server: %v", cerr)
 	}
-
-	serveErr := server.ListenAndServeTLS("", "")
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if shutdownErr := challengeServer.Shutdown(shutdownCtx); shutdownErr != nil && shutdownErr != http.ErrServerClosed {
-		log.Printf("Failed to shut down challenge server cleanly: %v", shutdownErr)
-	}
-
-	return serveErr
-}
-
-func listenAndServe(addr string, handler http.Handler) error {
-	if err := http.ListenAndServe(addr, handler); err != nil {
-		return fmt.Errorf("server failed on %s: %w", addr, err)
-	}
-	return nil
+	return err
 }
 
 func fileExists(path string) bool {

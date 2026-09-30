@@ -1,0 +1,25 @@
+# systemd unit for a git checkout of echo-blog at /opt/echo-blog.
+# Installed by `make install`; secrets such as AUTH_SECRET go in
+# /etc/echo-blog/echo-blog.env, which is not part of the repository.
+[Unit]
+Description=Echo-blog service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=-/etc/echo-blog/echo-blog.env
+Environment=STATIC_DIR=/opt/echo-blog/blog-frontend/build
+# Content (posts, uploaded assets, about/contact, auth.db) lives in data/,
+# which git ignores, so `git pull` never touches it.
+WorkingDirectory=/opt/echo-blog/data
+ExecStart=/opt/echo-blog/blog-backend/echo-blog
+# SIGTERM triggers a graceful shutdown of in-flight requests.
+TimeoutStopSec=15
+StandardOutput=append:/opt/echo-blog/server.log
+StandardError=append:/opt/echo-blog/error.log
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

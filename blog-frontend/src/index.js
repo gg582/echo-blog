@@ -1,4 +1,4 @@
-// ~/chi-blog/blog-frontend/src/index.js
+// ~/echo-blog/blog-frontend/src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 // Import BrowserRouter for client-side routing

@@ -1,27 +1,29 @@
+// Package database opens the SQLite database that stores the admin account.
 package database
 
 import (
-    "database/sql"
-    "log"
-    _ "github.com/mattn/go-sqlite3"
+	"database/sql"
+	"fmt"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var DB *sql.DB
+const createUsersTable = `CREATE TABLE IF NOT EXISTS blog_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL
+);`
 
-func InitDatabase(dbPath string) {
-    var err error
-    DB, err = sql.Open("sqlite3", dbPath)
-    if err != nil {
-        log.Fatalf("Failed to open database: %v", err)
-    }
-    createTblIfNone := `CREATE TABLE IF NOT EXISTS blog_users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL
-    );`
-    _, err = DB.Exec(createTblIfNone)
-    if err != nil {
-        log.Fatalf("Failed to create users table: %v", err)
-    }
-    log.Println("Database initialized and users table checked/created")
+// Open opens the SQLite database at path and creates the users table if it
+// does not exist yet.
+func Open(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, fmt.Errorf("open database %s: %w", path, err)
+	}
+	if _, err := db.Exec(createUsersTable); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("create users table: %w", err)
+	}
+	return db, nil
 }

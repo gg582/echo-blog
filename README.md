@@ -1,4 +1,4 @@
-# Make Blog with Chi
+# Make Blog with Echo
 
 - Login/Logout implemented
 - Image attachment implemented
@@ -38,6 +38,20 @@ cd blog-backend
 ALLOWED_ORIGINS="https://chatter.pw,http://localhost:3000" go run . run
 ```
 
+## Server deployment (systemd)
+
+The server runs a git checkout at `/opt/echo-blog`. Content lives in
+`/opt/echo-blog/data/` (posts, uploaded assets, about/contact pages, `auth.db`),
+which git ignores, so pulling new code never touches it.
+
+```bash
+git clone https://github.com/gg582/echo-blog /opt/echo-blog
+cd /opt/echo-blog
+mkdir -p /etc/echo-blog && echo 'AUTH_SECRET=<random hex>' > /etc/echo-blog/echo-blog.env
+sudo make install   # builds, seeds data/ if missing, installs and starts echo-blog.service
+sudo make update    # later: git pull, rebuild, restart
+```
+
 ## Docker
 
 A multi-stage `Dockerfile` at the repo root builds the frontend, compiles the backend (CGO enabled for sqlite3), and packages both into a `debian:bookworm-slim` image.
@@ -45,15 +59,15 @@ A multi-stage `Dockerfile` at the repo root builds the frontend, compiles the ba
 Build:
 
 ```bash
-docker build -t chi-blog .
+docker build -t echo-blog .
 # Optionally pin the frontend API URL at build time:
-docker build --build-arg REACT_APP_API_URL=https://chatter.pw -t chi-blog .
+docker build --build-arg REACT_APP_API_URL=https://chatter.pw -t echo-blog .
 ```
 
 Run:
 
 ```bash
-docker run -p 8080:8080 -e ALLOWED_ORIGINS=https://chatter.pw,http://localhost:3000 chi-blog
+docker run -p 8080:8080 -e ALLOWED_ORIGINS=https://chatter.pw,http://localhost:3000 echo-blog
 ```
 
 ### Docker Compose
@@ -64,6 +78,6 @@ in a named volume that is seeded from the image on first start:
 
 ```bash
 docker compose up -d --build
-docker compose exec chi-blog chi-blog init   # create the admin account
+docker compose exec echo-blog echo-blog init   # create the admin account
 ```
 

@@ -11,7 +11,9 @@
 *.dylib            # macOS dynamic libraries
 *.o                # Object files
 *.a                # Archive files
-blog-backend/blog-backend       # Your compiled Go executable
+blog-backend/blog-backend
+blog-backend/echo-blog
+blog-backend/echo-blog.new
 
 # Test results
 *.test             # Go test binaries
@@ -37,6 +39,8 @@ posts/             # If you consider blog post markdown files as generated conte
 
 blog-frontend/node_modules/
 blog-frontend/build/
+blog-frontend/build.new/
+blog-frontend/build.old/
 blog-frontend/.env.local
 blog-frontend/.env*.local
 blog-frontend/dist/
@@ -52,3 +56,6 @@ blog-frontend/out/
 
 # Windows specific files
 Thumbs.db
+
+# Live blog content on a deployed checkout (see deploy/echo-blog.service)
+/data/

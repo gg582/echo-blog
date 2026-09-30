@@ -1,18 +1,18 @@
-# chi-blog (https://github.com/gg582/chi-blog)
+# echo-blog (https://github.com/gg582/echo-blog)
 #
 # Usage:
 #   docker compose up -d --build
-#   docker compose exec chi-blog chi-blog init   # create the admin account (interactive)
+#   docker compose exec echo-blog echo-blog init   # create the admin account (interactive)
 #
 # Data (posts, uploaded assets, about/contact, auth.db) lives in the named
 # volume below. On first start it is seeded from the image; afterwards it
 # persists independently of the image, so rebuilding never loses content.
 
 services:
-  chi-blog:
+  echo-blog:
     build: .
-    image: chi-blog:latest
-    container_name: chi-blog
+    image: echo-blog:latest
+    container_name: echo-blog
     ports:
       - "8080:8080"
     environment:
@@ -24,6 +24,7 @@ services:
       # ALLOWED_ORIGINS: "https://chatter.pw,http://localhost:3000"
       # TLS is expected to be terminated by a reverse proxy; keep USE_HTTPS unset.
     volumes:
+      # The volume keeps its original name so existing content stays attached.
       - chi-blog-data:/app/blog-backend
     restart: unless-stopped
 

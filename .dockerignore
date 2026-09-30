@@ -4,5 +4,6 @@ blog-frontend/build
 blog-frontend/node_modules
 *.log
 .env*
-blog-backend/chi-blog
+blog-backend/echo-blog
 blog-backend/blog-backend
+data

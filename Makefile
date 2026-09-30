@@ -1,64 +1,64 @@
-.PHONY: build install uninstall clean
+.PHONY: build test install update uninstall clean
 
 FRONTEND_DIR := blog-frontend
 BACKEND_DIR  := blog-backend
-BINARY_NAME  := chi-blog
-INSTALL_DIR  := /opt/chi-blog
+BINARY_NAME  := echo-blog
+SERVICE      := echo-blog
 SYSTEMD_DIR  := /etc/systemd/system
+DATA_DIR     := data
 
 build:
-	@echo "==> Installing frontend dependencies..."
-	cd $(FRONTEND_DIR) && npm install
 	@echo "==> Building frontend..."
-	cd $(FRONTEND_DIR) && npm run build
-	@echo "==> Tidying Go modules..."
-	cd $(BACKEND_DIR) && go mod tidy
+	cd $(FRONTEND_DIR) && npm ci && npm run build
 	@echo "==> Building Go backend..."
-	cd $(BACKEND_DIR) && go build -o $(BINARY_NAME) .
+	cd $(BACKEND_DIR) && CGO_ENABLED=1 go build -o $(BINARY_NAME) .
 	@echo "Build complete: $(BACKEND_DIR)/$(BINARY_NAME)"
 
+test:
+	cd $(BACKEND_DIR) && go vet ./... && go test ./...
+
+# install expects this checkout to live at /opt/echo-blog (see deploy/echo-blog.service).
+# Content is kept in $(DATA_DIR)/, which is seeded from the repository only when
+# it does not exist yet, so reinstalling never overwrites posts or accounts.
 install: build
 	@if [ $$(id -u) -ne 0 ]; then \
 		echo "Error: 'make install' must be run as root (try: sudo make install)"; \
 		exit 1; \
 	fi
-	@echo "==> Installing to $(INSTALL_DIR)..."
-	mkdir -p $(INSTALL_DIR)/bin
-	mkdir -p $(INSTALL_DIR)/blog-backend/posts
-	mkdir -p $(INSTALL_DIR)/blog-frontend/build
-	cp $(BACKEND_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/bin/
-	cp -r $(BACKEND_DIR)/posts/* $(INSTALL_DIR)/blog-backend/posts/ 2>/dev/null || true
-	cp -r $(BACKEND_DIR)/about $(INSTALL_DIR)/blog-backend/ 2>/dev/null || true
-	cp -r $(BACKEND_DIR)/contact $(INSTALL_DIR)/blog-backend/ 2>/dev/null || true
-	cp -r $(FRONTEND_DIR)/build/* $(INSTALL_DIR)/blog-frontend/build/
-	cp $(BACKEND_DIR)/auth.db $(INSTALL_DIR)/blog-backend/ 2>/dev/null || true
+	@if [ ! -d $(DATA_DIR) ]; then \
+		echo "==> Seeding $(DATA_DIR)/ from the repository..."; \
+		mkdir -p $(DATA_DIR); \
+		cp -a $(BACKEND_DIR)/posts $(BACKEND_DIR)/about $(BACKEND_DIR)/contact $(DATA_DIR)/; \
+		cp -a $(BACKEND_DIR)/auth.db $(DATA_DIR)/ 2>/dev/null || true; \
+	else \
+		echo "==> Keeping existing $(DATA_DIR)/"; \
+	fi
 	@echo "==> Installing systemd service..."
-	printf '[Unit]\nDescription=Chi Blog Server\nAfter=network.target\n\n[Service]\nType=simple\nUser=root\nWorkingDirectory=%s/blog-backend\nExecStart=%s/bin/%s\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target\n' \
-		"$(INSTALL_DIR)" "$(INSTALL_DIR)" "$(BINARY_NAME)" > $(SYSTEMD_DIR)/chi-blog.service
+	install -m 644 deploy/echo-blog.service $(SYSTEMD_DIR)/$(SERVICE).service
 	systemctl daemon-reload
-	systemctl enable chi-blog
-	@echo "==> Starting chi-blog service..."
-	systemctl start chi-blog
+	systemctl enable $(SERVICE)
+	systemctl restart $(SERVICE)
 	@echo ""
 	@echo "Installation complete."
-	@echo "  - Service : chi-blog"
-	@echo "  - URL     : http://localhost:8080"
-	@echo "  - Logs    : journalctl -u chi-blog -f"
-	@echo "  - Control : sudo systemctl {start|stop|restart|status} chi-blog"
+	@echo "  - Service : $(SERVICE)"
+	@echo "  - Secrets : /etc/echo-blog/echo-blog.env (AUTH_SECRET=...)"
+	@echo "  - Logs    : /opt/echo-blog/server.log, /opt/echo-blog/error.log"
+	@echo "  - Update  : sudo make update"
 
+update:
+	./deploy/update.sh
+
+# uninstall removes the service only; $(DATA_DIR)/ is left in place.
 uninstall:
 	@if [ $$(id -u) -ne 0 ]; then \
 		echo "Error: 'make uninstall' must be run as root (try: sudo make uninstall)"; \
 		exit 1; \
 	fi
-	@echo "==> Stopping and disabling chi-blog..."
-	systemctl stop chi-blog 2>/dev/null || true
-	systemctl disable chi-blog 2>/dev/null || true
-	rm -f $(SYSTEMD_DIR)/chi-blog.service
+	systemctl stop $(SERVICE) 2>/dev/null || true
+	systemctl disable $(SERVICE) 2>/dev/null || true
+	rm -f $(SYSTEMD_DIR)/$(SERVICE).service
 	systemctl daemon-reload
-	@echo "==> Removing installation directory..."
-	rm -rf $(INSTALL_DIR)
-	@echo "Uninstall complete."
+	@echo "Service removed. Content in $(DATA_DIR)/ was kept."
 
 clean:
 	@echo "==> Cleaning build artifacts..."

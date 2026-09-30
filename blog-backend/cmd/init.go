@@ -6,10 +6,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/cobra"
+
+	"github.com/gg582/echo-blog/blog-backend/auth"
 	"github.com/gg582/echo-blog/blog-backend/config"
 	"github.com/gg582/echo-blog/blog-backend/database"
-	"github.com/gg582/echo-blog/blog-backend/utils"
-	"github.com/spf13/cobra"
 )
 
 func newInitCommand() *cobra.Command {
@@ -26,10 +27,14 @@ func newInitCommand() *cobra.Command {
 				os.Exit(1)
 			}
 
-			database.InitDatabase(config.Load().DBPath)
+			db, err := database.Open(config.Load().DBPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer db.Close()
+			users := auth.NewUsers(db)
 
-			var count int
-			err := database.DB.QueryRow("SELECT COUNT(*) FROM blog_users").Scan(&count)
+			count, err := users.Count(cmd.Context())
 			if err != nil {
 				log.Fatalf("Failed to query users: %v", err)
 			}
@@ -45,11 +50,7 @@ func newInitCommand() *cobra.Command {
 			var password string
 			fmt.Scanln(&password)
 
-			pwHash, err := utils.HashPassword(password)
-			if err != nil {
-				log.Fatalf("Failed to generate password hash: %v", err)
-			}
-			if _, err := database.DB.Exec("INSERT INTO blog_users (username, password_hash) values (?,?)", username, pwHash); err != nil {
+			if err := users.Create(cmd.Context(), username, password); err != nil {
 				log.Fatalf("Failed to insert user info to Database. Please check sqlite3's condition: %v", err)
 			}
 			log.Printf("Admin user (%v) created", username)
