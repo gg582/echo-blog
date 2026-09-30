@@ -15,6 +15,7 @@ import LoginPage from './pages/LoginPage';
 
 // Import Authentication Context and Protected Route
 import { AuthProvider } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Import the Header component (now aware of auth state)
@@ -84,7 +85,9 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <SettingsProvider>
+        <AppContent />
+      </SettingsProvider>
     </AuthProvider>
   );
 }

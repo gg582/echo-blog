@@ -23,6 +23,8 @@ type Config struct {
 	AboutMD string
 	// ContactMD is the markdown file backing the contact page.
 	ContactMD string
+	// SettingsPath is the JSON file holding site settings edited from the dashboard.
+	SettingsPath string
 	// UseHTTPS enables TLS serving (local cert files or ACME).
 	UseHTTPS bool
 	// TLSCertFile is the path to the TLS certificate chain.
@@ -59,6 +61,7 @@ func Load() *Config {
 		AssetsDir:         getenv("ASSETS_DIR", "./posts/assets"),
 		AboutMD:           getenv("ABOUT_MD", "./about/about.md"),
 		ContactMD:         getenv("CONTACT_MD", "./contact/contact.md"),
+		SettingsPath:      getenv("SETTINGS_PATH", "./settings.json"),
 		TLSCertFile:       getenv("TLS_CERT_FILE", "/etc/letsencrypt/live/chatter.pw/fullchain.pem"),
 		TLSKeyFile:        getenv("TLS_KEY_FILE", "/etc/letsencrypt/live/chatter.pw/privkey.pem"),
 		TLSDomain:         getenv("TLS_DOMAIN", "chatter.pw"),

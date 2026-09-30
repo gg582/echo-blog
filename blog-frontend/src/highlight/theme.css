@@ -1,0 +1,132 @@
+/* Code highlight theme driven by CSS variables.
+   Mirrors the highlight.js base16 theme template, with every color taken from
+   --hl-base00 .. --hl-base0F. src/highlight/theme.js sets the variables from the
+   palette saved in the site settings; the fallbacks below are the default
+   (GitHub) palette so code renders correctly before settings load. */
+
+:root {
+  --hl-base00: #f6f8fa;
+  --hl-base01: #f5f5f5;
+  --hl-base02: #c8c8fa;
+  --hl-base03: #969896;
+  --hl-base04: #e8e8e8;
+  --hl-base05: #333333;
+  --hl-base06: #ffffff;
+  --hl-base07: #ffffff;
+  --hl-base08: #ed6a43;
+  --hl-base09: #0086b3;
+  --hl-base0A: #795da3;
+  --hl-base0B: #183691;
+  --hl-base0C: #183691;
+  --hl-base0D: #795da3;
+  --hl-base0E: #a71d5d;
+  --hl-base0F: #333333;
+}
+
+pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1em;
+}
+code.hljs {
+  padding: 3px 5px;
+}
+.hljs {
+  color: var(--hl-base05);
+  background: var(--hl-base00);
+}
+.hljs::selection,
+.hljs ::selection {
+  background-color: var(--hl-base02);
+  color: var(--hl-base05);
+}
+
+/* base03 - Comments */
+.hljs-comment {
+  color: var(--hl-base03);
+}
+/* base04 - Dark foreground */
+.hljs-tag {
+  color: var(--hl-base04);
+}
+/* base05 - Default foreground, operators */
+.hljs-subst,
+.hljs-punctuation,
+.hljs-operator {
+  color: var(--hl-base05);
+}
+.hljs-operator {
+  opacity: 0.7;
+}
+/* base08 - Variables, XML tags, diff deleted */
+.hljs-bullet,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-selector-tag,
+.hljs-name,
+.hljs-deletion {
+  color: var(--hl-base08);
+}
+/* base09 - Numbers, booleans, constants, attributes */
+.hljs-symbol,
+.hljs-number,
+.hljs-link,
+.hljs-attr,
+.hljs-variable.constant_,
+.hljs-literal {
+  color: var(--hl-base09);
+}
+/* base0A - Classes */
+.hljs-title,
+.hljs-class .hljs-title,
+.hljs-title.class_ {
+  color: var(--hl-base0A);
+}
+.hljs-strong {
+  font-weight: bold;
+  color: var(--hl-base0A);
+}
+/* base0B - Strings, diff inserted */
+.hljs-code,
+.hljs-addition,
+.hljs-title.class_.inherited__,
+.hljs-string {
+  color: var(--hl-base0B);
+}
+/* base0C - Built-ins, regular expressions, escapes */
+.hljs-built_in,
+.hljs-doctag,
+.hljs-quote,
+.hljs-keyword.hljs-atrule,
+.hljs-regexp {
+  color: var(--hl-base0C);
+}
+/* base0D - Functions, headings, sections */
+.hljs-function .hljs-title,
+.hljs-attribute,
+.ruby .hljs-property,
+.hljs-title.function_,
+.hljs-section {
+  color: var(--hl-base0D);
+}
+/* base0E - Keywords, types */
+.hljs-type,
+.hljs-template-tag,
+.diff .hljs-meta,
+.hljs-keyword {
+  color: var(--hl-base0E);
+}
+.hljs-emphasis {
+  color: var(--hl-base0E);
+  font-style: italic;
+}
+/* base0F - Meta, embedded language tags */
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-meta .hljs-string {
+  color: var(--hl-base0F);
+}
+.hljs-meta .hljs-keyword,
+.hljs-meta-keyword {
+  font-weight: bold;
+}

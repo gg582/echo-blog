@@ -33,20 +33,16 @@ func (p *Posts) path(id string) string {
 // List renders every .md file in the directory. Files that cannot be read
 // are logged and skipped. It stops early if ctx is cancelled.
 func (p *Posts) List(ctx context.Context) ([]models.Post, error) {
-	entries, err := os.ReadDir(p.dir)
+	ids, err := p.ids()
 	if err != nil {
-		return nil, fmt.Errorf("error reading directory '%s': %w", p.dir, err)
+		return nil, err
 	}
 
 	var posts []models.Post
-	for _, entry := range entries {
+	for _, id := range ids {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
-			continue
-		}
-		id := strings.TrimSuffix(entry.Name(), ".md")
 		post, err := p.Get(id)
 		if err != nil {
 			log.Printf("error reading file: %s - %v", p.path(id), err)
@@ -55,6 +51,49 @@ func (p *Posts) List(ctx context.Context) ([]models.Post, error) {
 		posts = append(posts, post)
 	}
 	return posts, nil
+}
+
+// Source is the id and raw markdown of one post.
+type Source struct {
+	ID       string
+	Markdown []byte
+}
+
+// Sources returns the raw markdown of every post. Files that cannot be read
+// are logged and skipped. It stops early if ctx is cancelled.
+func (p *Posts) Sources(ctx context.Context) ([]Source, error) {
+	ids, err := p.ids()
+	if err != nil {
+		return nil, err
+	}
+	sources := make([]Source, 0, len(ids))
+	for _, id := range ids {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		raw, err := p.Raw(id)
+		if err != nil {
+			log.Printf("error reading file: %s - %v", p.path(id), err)
+			continue
+		}
+		sources = append(sources, Source{ID: id, Markdown: raw})
+	}
+	return sources, nil
+}
+
+// ids returns the ids of all posts in directory order.
+func (p *Posts) ids() ([]string, error) {
+	entries, err := os.ReadDir(p.dir)
+	if err != nil {
+		return nil, fmt.Errorf("error reading directory '%s': %w", p.dir, err)
+	}
+	var ids []string
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".md") {
+			ids = append(ids, strings.TrimSuffix(entry.Name(), ".md"))
+		}
+	}
+	return ids, nil
 }
 
 // Get renders the post with the given id.

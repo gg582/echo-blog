@@ -65,6 +65,7 @@ func newFixture(t *testing.T, origins []string) *fixture {
 		AssetsDir:      filepath.Join(root, "posts", "assets"),
 		AboutMD:        filepath.Join(root, "about", "about.md"),
 		ContactMD:      filepath.Join(root, "contact", "contact.md"),
+		SettingsPath:   filepath.Join(root, "settings.json"),
 		AllowedOrigins: origins,
 		AuthSecret:     testSecret,
 	}

@@ -115,3 +115,122 @@ func publicBaseURL(req *http.Request) string {
 	}
 	return u.String()
 }
+
+// FileUsage returns, for every uploaded file that posts link to, the ids of
+// those posts: {"name.png": ["post-id", ...]}.
+func (h *Handlers) FileUsage(c *echo.Context) error {
+	files, err := h.Assets.List()
+	if err != nil {
+		return textError(http.StatusInternalServerError, "Error reading assets directory: "+err.Error())
+	}
+	sources, err := h.Posts.Sources(c.Request().Context())
+	if err != nil {
+		return textError(http.StatusInternalServerError, err.Error())
+	}
+
+	usage := map[string][]string{}
+	for _, f := range files {
+		for _, src := range sources {
+			if assets.Mentions(src.Markdown, f.Name) {
+				usage[f.Name] = append(usage[f.Name], src.ID)
+			}
+		}
+	}
+	return c.JSON(http.StatusOK, usage)
+}
+
+// ReplaceFile overwrites an existing file with the uploaded "file" field,
+// keeping the name given in the "filename" field so links stay valid.
+func (h *Handlers) ReplaceFile(c *echo.Context) error {
+	name := c.FormValue("filename")
+	fh, err := c.FormFile("file")
+	if err != nil {
+		return textError(http.StatusBadRequest, "No file found in the request.")
+	}
+	file, err := fh.Open()
+	if err != nil {
+		return textError(http.StatusBadRequest, "Error reading uploaded file: "+err.Error())
+	}
+	defer file.Close()
+
+	info, err := h.Assets.Replace(name, file)
+	if err := assetError(err); err != nil {
+		return err
+	}
+	log.Printf("File %s replaced by %s (%d bytes)", name, currentUser(c), info.Size)
+	return c.JSON(http.StatusOK, map[string]any{"message": "File replaced", "file": info})
+}
+
+type renameFileRequest struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+	// UpdateReferences also rewrites links to the file in posts.
+	UpdateReferences bool `json:"updateReferences"`
+}
+
+// RenameFile renames an uploaded file and optionally rewrites the links to it
+// in every post.
+func (h *Handlers) RenameFile(c *echo.Context) error {
+	var req renameFileRequest
+	if err := decodeJSON(c, &req); err != nil {
+		return textError(http.StatusBadRequest, "Invalid request body: "+err.Error())
+	}
+
+	info, err := h.Assets.Rename(req.From, req.To)
+	if err := assetError(err); err != nil {
+		return err
+	}
+	log.Printf("File %s renamed to %s by %s", req.From, req.To, currentUser(c))
+
+	updated := []string{}
+	if req.UpdateReferences && req.From != req.To {
+		updated, err = h.rewriteLinks(c, req.From, req.To)
+		if err != nil {
+			return textError(http.StatusInternalServerError,
+				fmt.Sprintf("File renamed, but updating posts failed after %v: %v", updated, err))
+		}
+	}
+	return c.JSON(http.StatusOK, map[string]any{
+		"message":      "File renamed",
+		"file":         info,
+		"updatedPosts": updated,
+	})
+}
+
+// rewriteLinks points every post's links to from at to, and returns the ids
+// of the posts it changed.
+func (h *Handlers) rewriteLinks(c *echo.Context, from, to string) ([]string, error) {
+	sources, err := h.Posts.Sources(c.Request().Context())
+	if err != nil {
+		return nil, err
+	}
+	updated := []string{}
+	for _, src := range sources {
+		markdown, changed := assets.RewriteLinks(src.Markdown, from, to)
+		if !changed {
+			continue
+		}
+		if err := h.Posts.Write(src.ID, markdown); err != nil {
+			return updated, fmt.Errorf("post %s: %w", src.ID, err)
+		}
+		updated = append(updated, src.ID)
+	}
+	log.Printf("Links to %s rewritten to %s in posts %v", from, to, updated)
+	return updated, nil
+}
+
+// assetError maps assets store errors to HTTP errors; nil stays nil.
+func assetError(err error) error {
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, assets.ErrInvalidName):
+		return textError(http.StatusBadRequest, "Invalid filename.")
+	case errors.Is(err, assets.ErrNotFound):
+		return textError(http.StatusNotFound, "File not found.")
+	case errors.Is(err, assets.ErrExists):
+		return textError(http.StatusConflict, "A file with that name already exists.")
+	default:
+		return textError(http.StatusInternalServerError, "Error updating file: "+err.Error())
+	}
+}

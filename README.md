@@ -6,8 +6,34 @@
 - Post format is Markdown
 - Code highlighter is included
 
+- Dashboard for uploaded files and code highlight colors (see below)
+
 ![스크린샷1](./_readme_imgs/blog1.png)
 ![스크린샷2](./_readme_imgs/blog2.png)
+
+## Dashboard
+
+`/dashboard` (admin only) has two tabs:
+
+- **Files**: upload by drag and drop, search, filter (images, media, files no
+  post links to) and sort. Each file shows which posts link to it. Files can
+  be copied as a link or Markdown snippet, **replaced** (new content under the
+  same name, so existing links keep working), **renamed** (optionally rewriting
+  the links in every post) and deleted one at a time or in bulk.
+- **Code colors**: pick one of 16 base16 palettes or edit any of the 16 colors,
+  with a live preview, and save it for the whole site. The palette is stored
+  in `SETTINGS_PATH` and applied through CSS variables, so no rebuild is needed.
+
+Admin API used by the dashboard (all require `Authorization: Bearer <token>`):
+
+| Method | Path | Body | Purpose |
+| --- | --- | --- | --- |
+| GET | `/api/files` | | List uploaded files |
+| GET | `/api/files/usage` | | `{"file": ["post-id", ...]}` for files linked from posts |
+| POST | `/api/replace-file` | multipart `filename`, `file` | Overwrite an existing file's content |
+| POST | `/api/rename-file` | `{"from", "to", "updateReferences"}` | Rename; `409` if `to` exists |
+| POST | `/api/delete-file` | `{"filename"}` | Delete a file |
+| POST | `/api/settings` | `{"highlight": {"preset", "colors": {base00..base0F}}}` | Save site settings (`GET /api/settings` is public) |
 
 ## Configuration
 
@@ -22,6 +48,7 @@ The backend is configured via environment variables (all are optional; defaults 
 | `ASSETS_DIR` | `./posts/assets` | Directory for uploaded files |
 | `ABOUT_MD` | `./about/about.md` | Markdown file for the about page |
 | `CONTACT_MD` | `./contact/contact.md` | Markdown file for the contact page |
+| `SETTINGS_PATH` | `./settings.json` | Site settings edited from the dashboard (code highlight colors) |
 | `USE_HTTPS` | `false` | Set to `true` to serve HTTPS |
 | `TLS_CERT_FILE` | `/etc/letsencrypt/live/chatter.pw/fullchain.pem` | TLS certificate chain |
 | `TLS_KEY_FILE` | `/etc/letsencrypt/live/chatter.pw/privkey.pem` | TLS private key |

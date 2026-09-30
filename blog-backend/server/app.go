@@ -10,6 +10,7 @@ import (
 	"github.com/gg582/echo-blog/blog-backend/content"
 	"github.com/gg582/echo-blog/blog-backend/database"
 	"github.com/gg582/echo-blog/blog-backend/handlers"
+	"github.com/gg582/echo-blog/blog-backend/settings"
 	"github.com/gg582/echo-blog/blog-backend/workerpool"
 )
 
@@ -41,12 +42,13 @@ func NewApp(cfg *config.Config) (*App, error) {
 
 	pool := workerpool.New(uploadWorkers, uploadQueueSize)
 	h := &handlers.Handlers{
-		Posts:   content.NewPosts(cfg.PostsDir),
-		About:   content.Page{ID: "about", Path: cfg.AboutMD, DefaultTitle: "About Us"},
-		Contact: content.Page{ID: "contact", Path: cfg.ContactMD, DefaultTitle: "Contact Us"},
-		Assets:  assets.NewStore(cfg.AssetsDir, pool),
-		Users:   auth.NewUsers(db),
-		Tokens:  tokens,
+		Posts:    content.NewPosts(cfg.PostsDir),
+		About:    content.Page{ID: "about", Path: cfg.AboutMD, DefaultTitle: "About Us"},
+		Contact:  content.Page{ID: "contact", Path: cfg.ContactMD, DefaultTitle: "Contact Us"},
+		Assets:   assets.NewStore(cfg.AssetsDir, pool),
+		Users:    auth.NewUsers(db),
+		Tokens:   tokens,
+		Settings: settings.NewStore(cfg.SettingsPath),
 	}
 
 	return &App{

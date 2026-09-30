@@ -1,7 +1,7 @@
 /* Styles for PostDetailPage */
 
-/* Code block colors come from the highlight.js base16/github theme,
-   imported in src/highlight/hljs.js */
+/* Code block colors come from the --hl-* variables in src/highlight/theme.css,
+   set from the palette chosen in the dashboard. */
 
 .post-detail-page {
     /* Add any page-specific layout if needed */
@@ -67,7 +67,7 @@
 }
 
 .post-detail-content pre {
-    background-color: #f6f8fa;
+    background-color: var(--hl-base00);
     border: 1px solid #e1e4e8;
     border-radius: 6px;
     padding: 16px;

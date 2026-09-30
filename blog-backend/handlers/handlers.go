@@ -13,16 +13,18 @@ import (
 	"github.com/gg582/echo-blog/blog-backend/assets"
 	"github.com/gg582/echo-blog/blog-backend/auth"
 	"github.com/gg582/echo-blog/blog-backend/content"
+	"github.com/gg582/echo-blog/blog-backend/settings"
 )
 
 // Handlers holds the dependencies of the HTTP handlers.
 type Handlers struct {
-	Posts   *content.Posts
-	About   content.Page
-	Contact content.Page
-	Assets  *assets.Store
-	Users   *auth.Users
-	Tokens  *auth.Signer
+	Posts    *content.Posts
+	About    content.Page
+	Contact  content.Page
+	Assets   *assets.Store
+	Users    *auth.Users
+	Tokens   *auth.Signer
+	Settings *settings.Store
 }
 
 // Register mounts the API routes on e.
@@ -42,8 +44,14 @@ func (h *Handlers) Register(e *echo.Echo) {
 	e.GET("/api/contact", h.GetContact)
 
 	e.GET("/api/files", h.ListFiles, requireAuth)
+	e.GET("/api/files/usage", h.FileUsage, requireAuth)
 	e.POST("/api/delete-file", h.DeleteFile, requireAuth)
+	e.POST("/api/replace-file", h.ReplaceFile, requireAuth)
+	e.POST("/api/rename-file", h.RenameFile, requireAuth)
 	e.POST("/api/upload-file", h.UploadFiles)
+
+	e.GET("/api/settings", h.GetSettings)
+	e.POST("/api/settings", h.SaveSettings, requireAuth)
 }
 
 // textError returns an error that the server renders as a plain-text body.
